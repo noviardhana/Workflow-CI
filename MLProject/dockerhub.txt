@@ -1,0 +1,2 @@
+# Tautan dockerhub untuk mengimpan model
+https://hub.docker.com/repository/docker/noviardhana/diet-model/general
