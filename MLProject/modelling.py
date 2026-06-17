@@ -1,20 +1,22 @@
-import os
-import shutil
-import time
+import os, shutil, time, warnings, logging, mlflow, mlflow.sklearn
 import pandas as pd
+
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+
 import seaborn as sns
+
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import f1_score, classification_report, confusion_matrix
-import warnings
-import mlflow
-import mlflow.sklearn
 
-warnings.filterwarnings('ignore')
 sns.set_theme(style="whitegrid")
+logging.getLogger("mlflow").setLevel(logging.ERROR)
+warnings.filterwarnings('ignore')
+
 
 class DietModelPipeline:
     def __init__(self, data_path='healthy_diet_calorie_intake_preprocessing.csv'):
@@ -23,20 +25,26 @@ class DietModelPipeline:
         self.predictions = {}
         
         self.models = {
-            'Logistic Regression': LogisticRegression(penalty='l2', C=0.1, solver='lbfgs', max_iter=2000, tol=1e-4, class_weight='balanced', n_jobs=-1, random_state=42),
+            'Logistic Regression': LogisticRegression(
+                penalty='l2', C=0.1, solver='lbfgs', 
+                max_iter=2000, tol=1e-4, class_weight='balanced', 
+                n_jobs=-1, random_state=42),
             
-            # Parameter SVC baru
-            'SVC': SVC(C=50, kernel='rbf', gamma=0.01, probability=True, decision_function_shape='ovr', class_weight='balanced', random_state=42),
+            'SVC': SVC(
+                C=1.0, kernel='rbf', gamma='scale', 
+                probability=True, decision_function_shape='ovr', 
+                tol=1e-3, class_weight='balanced', 
+                random_state=42),
             
-            # Parameter Random Forest baru
             'Random Forest': RandomForestClassifier(
-                n_estimators=200, 
-                criterion='entropy', 
-                max_depth=40, 
-                min_samples_split=2, 
+                n_estimators=300, 
+                criterion='gini', 
+                max_depth=15, 
+                min_samples_split=5, 
                 min_samples_leaf=2, 
-                max_features='log2', 
-                bootstrap=False, 
+                max_features='sqrt', 
+                bootstrap=True, 
+                oob_score=True, 
                 class_weight='balanced_subsample', 
                 n_jobs=-1, 
                 random_state=42
@@ -44,7 +52,7 @@ class DietModelPipeline:
         }
 
         mlflow.sklearn.autolog()
-        mlflow.set_tracking_uri("http://127.0.0.1:5000/") 
+        mlflow.set_tracking_uri("http://127.0.0.1:5001/") 
         mlflow.set_experiment("Diet_Health_Status_Basic")
 
     def prepare_data(self, kolom_bocor=['BMI', 'Height_cm', 'Weight_kg', 'Health_Status']):
