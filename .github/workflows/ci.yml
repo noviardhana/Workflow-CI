@@ -27,7 +27,7 @@ jobs:
     - name: Run mlflow project
       run: |
         cd MLProject
-        mlflow server --host 127.0.0.1 --port 5000 &
+        mlflow server --host 127.0.0.1 --port 5001 &
         sleep 10
         mlflow run . --env-manager=local --experiment-name="Diet_Health_Status_Basic"
 
