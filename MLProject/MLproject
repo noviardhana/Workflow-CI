@@ -1,5 +1,8 @@
 name: Diet_Health_Status
 
 entry_points:
-  main:
-    command: "python modelling.py"
+
+main:
+
+command: >
+  python modelling.py
